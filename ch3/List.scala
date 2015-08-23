@@ -159,6 +159,45 @@ object List {
   def append2[A](ns: List[A], ns2: List[A]): List[A] =
     foldLeft(reverse(ns), reverse(ns2))(Cons(_,_))
 
+  //Exercise 3.15
+  //Write a function that concantenates a list of lists into a single list. Its runtime should
+  //be linear in the total length of all lists.
+  def concat[A](lsts: List[List[A]]): List[A] = 
+    foldRight(lsts, Nil: List[A])((x,acc) => append(x,acc))
 
+  def concat2[A](lsts: List[List[A]]): List[A] =
+    foldLeft(reverse(lsts), Nil: List[A])((x, acc) => append(x,acc))
+
+
+  //Exercise 3.16
+  //Write a function that transforms a list of integers by adding 1 to each element
+  def addOne(lst: List[Int]): List[Int] = 
+    foldRight(lst, Nil: List[Int])((x,acc) => Cons(x+1,acc))
+
+  //Exercise 3.17
+  //Write a function that turns each value in a List[Double] into a String. 
+  def listToString(lst: List[Double]): List[String] = 
+    foldRight(lst, Nil: List[String])((x,acc) => Cons(x.toString, acc))
+
+
+  //Exercise 3.18
+  //Write a function map that generalizes modifying each element in a list while maintaining the
+  //structure of the list
+  def map[A,B](as: List[A])(f: A => B): List[B] = 
+    foldRight(as, Nil: List[B])((x,acc) => Cons(f(x),acc))
+
+  //Exercise 3.19
+  //Write a function filter that removes elements from a list unless they satisfy a given predicate
+  def filter[A,B](as: List[A])(f: A => Boolean): List[A] = 
+    foldRight(as, Nil: List[A])((x,acc) => if(f(x)) Cons(x,acc) else acc)
+
+  //Exercise 3.20
+  //Write a function flatMap that works like map except that the function given will return a list
+  //instead of a single result, and that list should be inserted into the final resulting list.
+  def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = 
+    foldRight(as, Nil: List[B])((x,acc) => append(f(x), acc))
+
+  //Exercise 3.21
+  
 }
 

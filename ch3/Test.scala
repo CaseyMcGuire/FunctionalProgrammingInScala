@@ -21,12 +21,19 @@ object Test {
     assert(List.reverse(fiveElemList) == List(5,4,3,2,1))
     assert(List.reverse(nilList) == Nil)
 
+
+    //3.14
     assert(List.append(fiveElemList, List(6)) == List(1,2,3,4,5,6))
     assert(List.append(nilList, List(1)) == List(1))
     assert(List.append(nilList, Nil) == Nil)
 
+    
     assert(List.append2(fiveElemList, List(6)) == List(1,2,3,4,5,6))
     assert(List.append2(nilList, List(1)) == List(1))
     assert(List.append2(nilList, Nil) == Nil)
+
+    //3.15
+    assert(List.concat(List(List(1),List(2),List(3,4))) == List(1,2,3,4))
+    assert(List.concat2(List(List(1),List(2),List(3,4))) == List(1,2,3,4))
   }
 }
