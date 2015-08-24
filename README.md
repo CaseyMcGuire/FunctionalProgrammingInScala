@@ -1,0 +1,1 @@
+These are some notes and completed exercises from the book, "Functional Programming In Scala" by Paul Chiusano and Runar Bjarnason
