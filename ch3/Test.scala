@@ -35,5 +35,12 @@ object Test {
     //3.15
     assert(List.concat(List(List(1),List(2),List(3,4))) == List(1,2,3,4))
     assert(List.concat2(List(List(1),List(2),List(3,4))) == List(1,2,3,4))
+
+    //3.20
+    assert(List.flatMap(List(1,2,3))(i => List(i,i)) == List(1,1,2,2,3,3))
+
+    assert(List.filter(List(1,2,3,4,5,6))(i => i > 4) == List(5,6))
+
+   assert(List.merge(List(1,2,3),List(1,2,3)) == List(2,4,6))
   }
 }

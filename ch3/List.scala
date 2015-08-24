@@ -198,6 +198,36 @@ object List {
     foldRight(as, Nil: List[B])((x,acc) => append(f(x), acc))
 
   //Exercise 3.21
-  
+  //Write filter in terms of flatMap
+  def filter2[A](as: List[A])(f: A => Boolean): List[A] = 
+    flatMap(as)(i => if (f(i)) List(i) else Nil)
+
+  //Exercise 3.22
+  //Write a function that accepts two lists and constructs a new list by adding corresponding elements
+  def merge(lst1: List[Int], lst2: List[Int]): List[Int] = {
+    @scala.annotation.tailrec
+    def merge(lst1: List[Int], lst2: List[Int], acc: List[Int]): List[Int] = {
+      (lst1, lst2) match {
+        case (Cons(x,xs), Cons(y,ys)) => merge(xs,ys,Cons(x+y, acc))
+        case _ => reverse(acc)
+      }
+    }
+    merge(lst1,lst2,Nil: List[Int])
+  }
+
+  //Exercise 3.23
+  //Generalize the function you just wrote so that it's not specific to integers or addition. 
+  def zipWith[A,B,C](lst1: List[A], lst2: List[B])(f: (A,B) => C): List[C] = {
+    @scala.annotation.tailrec
+    def zipWith(lst1: List[A], lst2: List[B], acc: List[C]): List[C] = {
+      (lst1, lst2) match {
+        case (Cons(x,xs), Cons(y,ys)) => zipWith(xs,ys,Cons(f(x,y), acc))
+        case _ => reverse(acc)
+      }
+    }
+    zipWith(lst1, lst2, Nil: List[C])
+  }
+
+  //Exercise 3.24
 }
 
