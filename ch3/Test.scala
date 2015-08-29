@@ -45,5 +45,24 @@ object Test {
 
     //3.24
     assert(List.hasSubsequence(List(1,2,3,4,5), List(4,5)))
+
+    val shallowTree = Branch(Leaf(1),Leaf(2))
+    val deepTree = 
+      Branch(
+        Branch(
+          Leaf(1),Leaf(2)),
+        Branch(
+          Leaf(3),Leaf(4)))
+          
+    assert(Tree.size(shallowTree) == 2)
+    assert(Tree.size(deepTree) == 4)
+
+    assert(Tree.maximum(shallowTree) == 2)
+    assert(Tree.maximum(deepTree) == 4)
+
+    assert(Tree.depth(shallowTree) == 2)
+    assert(Tree.depth(deepTree) == 3)
+
+    println(Tree.map(shallowTree)(x => 1))
   }
 }
