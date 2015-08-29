@@ -42,5 +42,8 @@ object Test {
     assert(List.filter(List(1,2,3,4,5,6))(i => i > 4) == List(5,6))
 
    assert(List.merge(List(1,2,3),List(1,2,3)) == List(2,4,6))
+
+    //3.24
+    assert(List.hasSubsequence(List(1,2,3,4,5), List(4,5)))
   }
 }

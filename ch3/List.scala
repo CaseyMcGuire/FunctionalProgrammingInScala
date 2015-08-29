@@ -229,5 +229,27 @@ object List {
   }
 
   //Exercise 3.24
+  //Implement hasSubsequence for checking whether a List contains another List as a subsequence.
+  //You may have difficulty finding a concise purely functional implementation that is also efficient.
+  //That's okay. Implement the function however comes most naturally.
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+    @scala.annotation.tailrec
+    def isSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+      (sup, sub) match {
+        case (_, Nil) => true
+        case (Cons(x,xs), Cons(y,ys)) => if (x == y) isSubsequence(xs,ys) else false
+        case _ => false
+      }
+    }
+
+    @scala.annotation.tailrec
+    def hasSubsequence[A](sup: List[A]): Boolean = {
+      sup match {
+        case Cons(x, xs) => if (isSubsequence(Cons(x,xs), sub)) true else hasSubsequence(xs)
+        case _ => false
+      }
+    }
+    hasSubsequence(sup)
+  }
 }
 
