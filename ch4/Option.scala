@@ -129,6 +129,11 @@ object Option {
   def map2_2[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] = 
     a flatMap (aa => b map (bb => f(aa,bb)))
 
+
+  //Note: a for comprehension consists of a sequence of bindings, like aa <- a, followed by a yield
+  //after the closing brace, where the yield may make use of any of the values on the left side of
+  //any previous <- bindings. The compiler desugars the bindings to flatMap calls, with the final
+  //binding and yield being converted to a call to map
   def map2_3[A,B,C](a: Option[A], b: Option[B])(f: (A,B) => C): Option[C] = 
     for {
       aa <- a
@@ -180,4 +185,6 @@ object Option {
       case Nil => Some(Nil)
       case x::xs => f(x) flatMap(n => traverse(xs)(f) flatMap(m => Some(n::m)))
     }
+
+
 }
