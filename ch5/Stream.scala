@@ -174,6 +174,74 @@ sealed trait Stream[+A]{
     filter(p).headOption
 
 
+  //Exercise 5.13
+  //Use unfold to implement map, take, takeWhile, zipWith, and zipAll. The zipAll function should
+  //continue the traversal as long as either stream has more elements -- it uses Option to indicate
+  //whether each stream has been exhausted.
+  def map_2[B](f: A => B): Stream[B] = 
+    unfold(this)((a: Stream[A]) => 
+      a match {
+        case Cons(h,t) => Some((f(h()), t()))
+        case Empty => None
+      })
+
+  //The book does this, which is more succinct
+  def map_3[B](f: A => B): Stream[B] = 
+    unfold(this) {
+      case Cons(h,t) => Some((f(h()), t()))
+      case _ => None
+    }
+
+  def take_2(n: Int): Stream[A] = 
+    unfold((this, n)) {
+      case (_, 0) => None
+      case (Empty,_) => None
+      case (Cons(h,t), num) => Some((h(), (t(), num - 1)))
+    }
+
+  def takeWhile_3(p: A => Boolean): Stream[A] = 
+    unfold(this) {
+      case Cons(h,t) => if (!p(h())) None else Some((h(), t()))
+      case _ => None
+    }
+
+  def zipWith[B,C](str2: Stream[B])(f: (A,B) => C): Stream[C] = 
+    unfold((this, str2)) {
+      case (Cons(h1,t1), Cons(h2,t2)) => Some((f(h1(),h2()), (t1(), t2())))
+      case _ => None
+    }
+
+  def zipAll[B](s2: Stream[B]): Stream[(Option[A], Option[B])] = 
+    unfold((this, s2)) {
+      case (Cons(h1,t1), Cons(h2,t2)) => Some(((Some(h1()), Some(h2())), (t1(), t2())))
+      case (Cons(h,t), Empty) => Some(((Some(h()), None),(t(), Empty)))
+      case (Empty, Cons(h,t)) => Some(((None, Some(h())), (Empty, t())))
+      case _ => None
+    }
+
+  //Exercise 5.14
+  //Implement startsWith using functions you've written. It should check if one Stream is a prefix
+  //of another. 
+  //example: Stream(1,2,3) startsWith Stream(1,2) == true
+
+  def startsWith[B](s: Stream[B]): Boolean = 
+    this.zipAll(s).forAll((a: (Option[A], Option[B])) => 
+      a match {
+        case (Some(x), Some(y)) => x == y
+        case (None, Some(_)) => false
+        case _ => true
+    })
+
+  //Exercise 5.15
+  //Implement tails using unfold. For a given Stream, tails returns the Stream of suffixes of the
+  //input sequence, starting with the original Stream. For example, given Stream(1,2,3), it would
+  //return Stream(Stream(1,2,3), Stream(2,3), Stream(3), Stream())
+  def tails: Stream[Stream[A]] = 
+    unfold(this) {
+      case Cons(h,t) => Some((cons(h(), t()), t()))
+      case Cons(_, t: Function0[Stream[A]]) => None
+      case Empty => None
+    }
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
@@ -248,6 +316,8 @@ object Stream {
 
   def ones_2: Stream[Int] = 
     unfold(1)((Int) => Some((1, 1)))
+
+
 }
 
 object Test {
@@ -275,6 +345,21 @@ object Test {
     runTest("First seven elements of fibonacci stream using unfold", fibs_2.take(7).toList, List(0,1,1,2,3,5,8))
 
     runTest("First seven elements of from stream (starting at 1) using unfold", from_2(1).take(7).toList, List(1,2,3,4,5,6,7))
+
+    runTest("First seven elements of ones stream mapped (via unfold) to add 1", ones.map_2(_ + 1).take(7).toList, List(2,2,2,2,2,2,2))
+
+    runTest("First seven elements of ones stream using take (via unfold)", ones.take_2(7).toList, List(1,1,1,1,1,1,1))
+
+    runTest("Get elements of fibonacci stream that are less than 10 using takeWhile_3", fibs.takeWhile_3(_ < 10).toList, List(0,1,1,2,3,5,8))
+
+    runTest("zipWith ones and fibs using addition", ones.zipWith(fibs)(_ + _).take(7).toList, List(1,2,2,3,4,6,9))
+
+    runTest("Stream(1,2,3) starts with Stream(1,2)", Stream(1,2,3).startsWith(Stream(1,2)), true)
+    runTest("Stream(1,2,3) starts with Stream(1,2,3)", Stream(1,2,3).startsWith(Stream(1,2,3)), true)
+    runTest("Stream(1,2,3) does not start with Stream(1,2,3,4)", Stream(1,2,3).startsWith(Stream(1,2,3,4)), false)
+    runTest("Empty stream starts with Empty stream", Stream().startsWith(Stream()), true)
+
+    runTest("tails test", Stream(1,2,3).tails.map(_.toList).toList, Stream(Stream(1,2,3), Stream(2,3), Stream(3), Stream()).map(_.toList).toList)
   }
 
   def runTest(testName: String, result: Any, expected: Any) {
