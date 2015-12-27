@@ -239,9 +239,19 @@ sealed trait Stream[+A]{
   def tails: Stream[Stream[A]] = 
     unfold(this) {
       case Cons(h,t) => Some((cons(h(), t()), t()))
-      case Cons(_, t: Function0[Stream[A]]) => None
       case Empty => None
-    }
+    }.append(Stream(empty))
+
+  //Exercise 5.16
+  //Hard: Generalize tails to the function scanRight, which is like a foldRight that returns a stream
+  //of the intermediate results. Your function should reuse intermediate results so that traversing
+  //a Stream with n elements always takes time linear in n. 
+  def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] = 
+    foldRight((z, Stream(z)))((a, p0) => {
+      lazy val p1 = p0
+      val b2 = f(a, p1._1)
+      (b2, cons(b2, p1._2))
+    })._2
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
