@@ -223,16 +223,72 @@ object RNG {
   //  type State[S, +A] = S => [A,S]
 
   //Here State is short for computation that carries some state along, or state action, state transition, or even statement.
-  //Now you could write type Rand[A] = State[RNG, A]
-
 }
 
+//Generalize the functions unit, map, map2, flatMap, and sequence. Add them as methods on the State 
+//case class where possible. Otherwise, put them in a State companion object.
 case class State[S,+A](run: S => (A,S)) {
-  
+
+  def map[B](f: A => B): State[S,B] = {
+    State(s => {
+      val (a1, s1) = run(s)
+      (f(a1), s1)
+    })
+  }
+
+  def map2[B,C](sb: State[S,B])(f: (A,B) => C): State[S,C] = {
+    State(s => {
+      val (e1, s1) = run(s)
+      val (e2, s2) = sb.run(s1)
+      (f(e1,e2), s2)
+    })
+  }
+
+  def flatMap[B](f: A => State[S,B]): State[S,B] = {
+    State(s => {
+      val (e1, s1) = run(s)
+      f(e1).run(s1)
+    })
+  }
 }
 
 object State {
+  type Rand[A] = State[RNG, A]
 
+  def unit[S,A](a: A): State[S,A] = {
+    State((s: S) => (a,s))
+  }
+
+  def sequence[S,A](fs: List[State[S,A]]): State[S, List[A]] = 
+    fs.foldRight(unit[S,List[A]](List()))((f, acc) => f.map2(acc)(_ :: _))
+
+
+  //To use for-comprehensions, we really only need two primitive State combinators - one
+  //for reading the state and one for writing the state. 
+
+  def modify[S](f: S => S): State[S,Unit] = for {
+    s <- get
+    _ <- set(f(s))
+  } yield ()
+
+  def get[S]: State[S,S] = State(s => (s, s))
+
+  def set[S](s: S): State[S, Unit] = State(_ => ((), s))
+}
+
+//Exercise 6.11
+//To gain experience with the use of State, implement a finite state automaton that models a simple
+//candy dispenser. The machine has two types of input: you can insert a coin, or you can turn the
+//knob to dispense candy. It can be in one of two states: locked or unlocked. It also tracks how
+//many candies are left and how many coins it contains.
+sealed trait Input
+case object Coin extends Input
+case object Turn extends Input
+
+case class Machine(locked: Boolean, candies: Int, coins: Int) {
+  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
+    null
+  }
 }
 
 object Main {
